@@ -2,7 +2,8 @@ import { useState } from 'react'
 
 const App = () => {
   const [persons, setPersons] = useState([
-    { name: 'Arto Hellas' }
+    { name: 'Arto Hellas' },
+    { name: 'Oleg maizer'}
   ]) 
   const [newName, setNewName] = useState('')
 
@@ -12,6 +13,11 @@ const App = () => {
 
   function handleFormSubmission(e) {
     e.preventDefault()
+    if(persons.find(person => person.name === newName)) {
+      alert(`${newName} is already added to phonebook`)
+      setNewName('')
+      return
+    }
     const newObj = {
       name: newName,
     }
