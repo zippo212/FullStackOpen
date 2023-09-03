@@ -1,12 +1,9 @@
 
 const Total = ({content}) => {
-  let sum = 0
-  for (let i=0; i < content.length; i++) {
-    sum += content[i].exercises
-  }
+  const total = content.reduce((total, current) => total + current.exercises,0);
 
   return (
-    <h3>Total of {sum} exercises</h3>
+    <h3>Total of {total} exercises</h3>
   )
 }
 
