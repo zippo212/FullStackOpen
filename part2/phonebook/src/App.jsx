@@ -28,6 +28,15 @@ const App = () => {
     setFilterBy(e.target.value)
   }
 
+  function handlePersonDeletion (id) {
+    const person = persons.find(p => p.id === id)
+    if (!window.confirm(`Are you sure you want to delete ${person.name}`)) return
+
+    phoneBookService
+      .deletePerson(id)
+      .then(() => setPersons(persons.filter(p => p.id !== id)))
+  }
+
   function handleFormSubmission(e) {
     e.preventDefault()
     if(persons.find(person => person.name === newName.trim())) {
@@ -61,7 +70,7 @@ const App = () => {
         numberInput={{name:'number:',value:newNumber,callback:handleNumberInputChange }}
       />
       <h3>Numbers</h3>
-      <Persons persons={personsToRender}/>
+      <Persons persons={personsToRender} handleClick={handlePersonDeletion}/>
     </div>
   )
 }
