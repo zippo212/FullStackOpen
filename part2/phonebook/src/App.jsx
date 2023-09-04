@@ -39,9 +39,16 @@ const App = () => {
 
   function handleFormSubmission(e) {
     e.preventDefault()
-    if(persons.find(person => person.name === newName.trim())) {
-      alert(`${newName} is already added to phonebook`)
+    const person = persons.find(p => p.name === newName.trim())
+    if(person) {
+      const confirmation = window.confirm(`${person.name} is already added to the phonebook, replace the old number with a new one?`)
+      if (confirmation) {
+        const updatedPerson = {...person, number: newNumber}
+        phoneBookService.update(person.id, updatedPerson)
+          .then(returnedPerson => setPersons(persons.map(p => p.id !== person.id ? p : returnedPerson)))
+      }
       setNewName('')
+      setNewNumber('')
       return
     }
 
@@ -58,7 +65,7 @@ const App = () => {
     setNewNumber('')
   }
 
-  const personsToRender = persons.filter(person => person.name.toLowerCase().includes(filterBy.toLowerCase().trim()))
+  const personsToRender = persons.filter(p => p.name.toLowerCase().includes(filterBy.toLowerCase().trim()))
 
   return (
     <div>
