@@ -3,12 +3,15 @@ import phoneBookService from './services/phoneBook'
 import Filter from './components/Filter'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
+import Notification from './components/Notification'
 
 const App = () => {
   const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filterBy, setFilterBy] = useState('')
+  const [successMessage, setSuccessMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect(() => {
     phoneBookService  
@@ -34,7 +37,11 @@ const App = () => {
 
     phoneBookService
       .deletePerson(id)
-      .then(() => setPersons(persons.filter(p => p.id !== id)))
+      .then(() => {
+        setPersons(persons.filter(p => p.id !== id))
+        setSuccessMessage(`Successfully deleted ${person.name}`)
+        setTimeout(() => setSuccessMessage(null),3000)
+      })
   }
 
   function handleFormSubmission(e) {
@@ -44,8 +51,13 @@ const App = () => {
       const confirmation = window.confirm(`${person.name} is already added to the phonebook, replace the old number with a new one?`)
       if (confirmation) {
         const updatedPerson = {...person, number: newNumber}
-        phoneBookService.update(person.id, updatedPerson)
-          .then(returnedPerson => setPersons(persons.map(p => p.id !== person.id ? p : returnedPerson)))
+        phoneBookService
+          .update(person.id, updatedPerson)
+          .then(returnedPerson => {
+              setPersons(persons.map(p => p.id !== person.id ? p : returnedPerson))
+              setSuccessMessage(`Successfully changed number for ${person.name}`)
+              setTimeout(() => setSuccessMessage(null),3000)
+            })
       }
       setNewName('')
       setNewNumber('')
@@ -59,7 +71,11 @@ const App = () => {
 
     phoneBookService
       .create(newObj)
-      .then(returnedNote => setPersons(persons.concat(returnedNote)))
+      .then(returnedNote => {
+        setPersons(persons.concat(returnedNote))
+        setSuccessMessage(`Added ${newObj.name}`)
+        setTimeout(() => setSuccessMessage(null),3000)
+      })
 
     setNewName('')
     setNewNumber('')
@@ -70,7 +86,9 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification success={successMessage} error={errorMessage}/>
       <Filter value={filterBy} callback={handleFilterChange}/>
+      <h3>Add a new</h3>
       <PersonForm 
         formCallback={handleFormSubmission}
         nameInput={{name:'name:',value:newName,callback:handleNameInputChange }}
