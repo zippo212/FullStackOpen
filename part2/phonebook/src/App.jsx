@@ -12,7 +12,7 @@ const App = () => {
   const [filterBy, setFilterBy] = useState('')
   const [successMessage, setSuccessMessage] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
-
+  console.log('render')
   useEffect(() => {
     phoneBookService  
       .getAll()
@@ -57,6 +57,11 @@ const App = () => {
               setPersons(persons.map(p => p.id !== person.id ? p : returnedPerson))
               setSuccessMessage(`Successfully changed number for ${person.name}`)
               setTimeout(() => setSuccessMessage(null),3000)
+            })
+            .catch(error => {
+              setPersons(persons.filter(p => p.id !== person.id))
+              setErrorMessage(`Information of ${person.name} has already been removed form server`)
+              setTimeout(() => setErrorMessage(null),3000)
             })
       }
       setNewName('')
