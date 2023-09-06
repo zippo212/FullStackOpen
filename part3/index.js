@@ -24,6 +24,13 @@ let phoneBook = [
   },
 ]
 
+app.get("/info", (req, res) => {
+  res.send(`
+      <p>Phonebook has info for ${phoneBook.length} people</p>
+      <p>${Date()}</p>
+    `)
+})
+
 app.get("/api/persons", (req, res) => {
   res.json(phoneBook)
 })
@@ -37,11 +44,12 @@ app.get("/api/persons/:id", (req, res) => {
   res.json(entry)
 })
 
-app.get("/info", (req, res) => {
-  res.send(`
-      <p>Phonebook has info for ${phoneBook.length} people</p>
-      <p>${Date()}</p>
-    `)
+app.delete("/api/persons/:id", (req, res) => {
+  const id = Number(req.params.id)
+
+  phoneBook = phoneBook.filter((entry) => entry.id !== id)
+
+  res.status(204).end()
 })
 
 const PORT = 3001
