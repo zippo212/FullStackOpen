@@ -1,7 +1,7 @@
 const express = require("express")
 const app = express()
 
-let data = [
+let phoneBook = [
   {
     id: 1,
     name: "Arto Hellas",
@@ -25,12 +25,21 @@ let data = [
 ]
 
 app.get("/api/persons", (req, res) => {
-  res.json(data)
+  res.json(phoneBook)
+})
+
+app.get("/api/persons/:id", (req, res) => {
+  const id = Number(req.params.id)
+  const entry = phoneBook.find((e) => e.id === id)
+
+  if (!entry) return res.status(404).end()
+
+  res.json(entry)
 })
 
 app.get("/info", (req, res) => {
   res.send(`
-      <p>Phonebook has info for ${data.length} people</p>
+      <p>Phonebook has info for ${phoneBook.length} people</p>
       <p>${Date()}</p>
     `)
 })
