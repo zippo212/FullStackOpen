@@ -12,7 +12,7 @@ const App = () => {
   const [filterBy, setFilterBy] = useState('')
   const [successMessage, setSuccessMessage] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
-  console.log('render')
+  
   useEffect(() => {
     phoneBookService  
       .getAll()
