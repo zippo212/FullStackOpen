@@ -1,6 +1,8 @@
+require("dotenv").config()
 const express = require("express")
 const cors = require("cors")
 const morgan = require("morgan")
+const Person = require("./models/person")
 
 const app = express()
 
@@ -10,29 +12,6 @@ app.use(morgan(":method :url :status :res[content-length] - :response-time ms :b
 app.use(cors())
 app.use(express.static("dist"))
 
-let phoneBook = [
-  {
-    id: 1,
-    name: "Arto Hellas",
-    number: "040-123456",
-  },
-  {
-    id: 2,
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-  },
-  {
-    id: 3,
-    name: "Dan Abramov",
-    number: "12-43-234345",
-  },
-  {
-    id: 4,
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-  },
-]
-
 app.get("/info", (req, res) => {
   res.send(`
       <p>Phonebook has info for ${phoneBook.length} people</p>
@@ -41,7 +20,9 @@ app.get("/info", (req, res) => {
 })
 
 app.get("/api/persons", (req, res) => {
-  res.json(phoneBook)
+  Person.find({}).then((persons) => {
+    res.json(persons)
+  })
 })
 
 app.get("/api/persons/:id", (req, res) => {
@@ -67,26 +48,26 @@ const generateId = () => {
 
 app.post("/api/persons", (req, res) => {
   const body = req.body
+  console.log(body)
+  // if (body.name && body.number) {
+  //   if (phoneBook.find((entry) => entry.name === body.name)) {
+  //     return res.status(400).json({ error: "name must be unique" })
+  //   }
 
-  if (body.name && body.number) {
-    if (phoneBook.find((entry) => entry.name === body.name)) {
-      return res.status(400).json({ error: "name must be unique" })
-    }
+  //   const newEntry = {
+  //     id: generateId(),
+  //     name: body.name,
+  //     number: body.number,
+  //   }
 
-    const newEntry = {
-      id: generateId(),
-      name: body.name,
-      number: body.number,
-    }
-
-    phoneBook = phoneBook.concat(newEntry)
-    res.status(201).json(newEntry)
-  } else {
-    return res.status(400).json({ error: "name and number are required" })
-  }
+  //   phoneBook = phoneBook.concat(newEntry)
+  //   res.status(201).json(newEntry)
+  // } else {
+  //   return res.status(400).json({ error: "name and number are required" })
+  // }
 })
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log("server listening on port", PORT)
 })
