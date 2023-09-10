@@ -32,9 +32,7 @@ const App = () => {
   }
 
   function handlePersonDeletion (id) {
-    console.log(id);
     const person = persons.find(p => p.id === id)
-    console.log(person);
     if (!window.confirm(`Are you sure you want to delete ${person.name}`)) return
 
     phoneBookService
@@ -62,7 +60,7 @@ const App = () => {
             })
             .catch(error => {
               setPersons(persons.filter(p => p.id !== person.id))
-              setErrorMessage(`Information of ${person.name} has already been removed form server`)
+              setErrorMessage(error.response.data.error)
               setTimeout(() => setErrorMessage(null),3000)
             })
       }
@@ -82,6 +80,10 @@ const App = () => {
         setPersons(persons.concat(returnedNote))
         setSuccessMessage(`Added ${newObj.name}`)
         setTimeout(() => setSuccessMessage(null),3000)
+      })
+      .catch(error => {
+        setErrorMessage(error.response.data.error)
+        setTimeout(() => setErrorMessage(null),3000)
       })
 
     setNewName('')
