@@ -32,7 +32,9 @@ const App = () => {
   }
 
   function handlePersonDeletion (id) {
+    console.log(id);
     const person = persons.find(p => p.id === id)
+    console.log(person);
     if (!window.confirm(`Are you sure you want to delete ${person.name}`)) return
 
     phoneBookService
