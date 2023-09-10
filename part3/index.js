@@ -12,11 +12,15 @@ app.use(express.json())
 morgan.token("body", (req, res) => JSON.stringify(req.body))
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms :body"))
 
-app.get("/info", (req, res) => {
-  res.send(`
-      <p>Phonebook has info for ${phoneBook.length} people</p>
-      <p>${Date()}</p>
-    `)
+app.get("/info", (req, res, next) => {
+  Person.countDocuments({})
+    .then((count) => {
+      res.send(`
+        <p>Phonebook has info for ${count} people</p>
+        <p>${Date()}</p>
+      `)
+    })
+    .catch((error) => next(error))
 })
 
 app.get("/api/persons", (req, res) => {
@@ -25,13 +29,16 @@ app.get("/api/persons", (req, res) => {
   })
 })
 
-app.get("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id)
-  const entry = phoneBook.find((e) => e.id === id)
-
-  if (!entry) return res.status(404).end()
-
-  res.json(entry)
+app.get("/api/persons/:id", (req, res, next) => {
+  Person.findById(req.params.id)
+    .then((person) => {
+      if (person) {
+        res.json(person)
+      } else {
+        res.status(404).end()
+      }
+    })
+    .catch((error) => next(error))
 })
 
 app.delete("/api/persons/:id", (req, res, next) => {
