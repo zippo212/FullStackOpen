@@ -5,12 +5,12 @@ const morgan = require("morgan")
 const Person = require("./models/person")
 
 const app = express()
+app.use(cors())
 
+app.use(express.static("dist"))
 app.use(express.json())
 morgan.token("body", (req, res) => JSON.stringify(req.body))
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms :body"))
-app.use(cors())
-app.use(express.static("dist"))
 
 app.get("/info", (req, res) => {
   res.send(`
@@ -35,11 +35,9 @@ app.get("/api/persons/:id", (req, res) => {
 })
 
 app.delete("/api/persons/:id", (req, res) => {
-  const id = Number(req.params.id)
-
-  phoneBook = phoneBook.filter((entry) => entry.id !== id)
-
-  res.status(204).end()
+  Person.findByIdAndRemove(req.params.id)
+    .then((result) => res.status(204).end())
+    .catch((error) => console.log(error))
 })
 
 app.post("/api/persons", (req, res) => {
