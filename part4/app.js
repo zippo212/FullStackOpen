@@ -1,7 +1,7 @@
 const config = require("./utils/config")
-const { info, error } = require("./utils/logger")
 const express = require("express")
 const app = express()
+const { info, error } = require("./utils/logger")
 const cors = require("cors")
 const blogsRouter = require("./controllers/blogs")
 const mongoose = require("mongoose")
