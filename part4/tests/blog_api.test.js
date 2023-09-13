@@ -34,6 +34,12 @@ test("blogs are returned in the correct number and as json", async () => {
   expect(blogs.body).toHaveLength(initialBlogs.length)
 })
 
+test("blogs post unique identifier property is id", async () => {
+  const blogs = await Blog.find({})
+  const blog = blogs.map((b) => b.toJSON())[0]
+  expect(blog.id).toBeDefined()
+})
+
 afterAll(async () => {
   await mongoose.connection.close()
 })
