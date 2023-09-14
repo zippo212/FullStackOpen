@@ -1,28 +1,14 @@
-const mongoose = require("mongoose")
 const supertest = require("supertest")
+const mongoose = require("mongoose")
+const helper = require("./blog_api_test_helper")
 const app = require("../app")
 const Blog = require("../models/blog")
 
 const api = supertest(app)
 
-const initialBlogs = [
-  {
-    title: "Test Title 1",
-    author: "Author 1",
-    url: "http://exemple.com",
-    likes: 4,
-  },
-  {
-    title: "Test Title 2",
-    author: "Author 2",
-    url: "http://exemple.com",
-    likes: 15,
-  },
-]
-
 beforeEach(async () => {
   await Blog.deleteMany({})
-  await Promise.all(initialBlogs.map((blog) => new Blog(blog).save()))
+  await Promise.all(helper.initialBlogs.map((blog) => new Blog(blog).save()))
 })
 
 test("blogs are returned in the correct number and as json", async () => {
@@ -31,12 +17,12 @@ test("blogs are returned in the correct number and as json", async () => {
     .expect(200)
     .expect("Content-Type", /application\/json/)
 
-  expect(blogs.body).toHaveLength(initialBlogs.length)
+  expect(blogs.body).toHaveLength(helper.initialBlogs.length)
 })
 
 test("blogs post unique identifier property is id", async () => {
-  const blogs = await Blog.find({})
-  const blog = blogs.map((b) => b.toJSON())[0]
+  const blogs = await helper.blogsInDb()
+  const blog = blogs[0]
   expect(blog.id).toBeDefined()
 })
 
@@ -54,11 +40,20 @@ test("creating a new blog post", async () => {
     .expect(201)
     .expect("Content-Type", /application\/json/)
 
-  const updatedBlogs = await Blog.find({})
-  expect(updatedBlogs).toHaveLength(initialBlogs.length + 1)
+  const updatedBlogs = await helper.blogsInDb()
+  expect(updatedBlogs).toHaveLength(helper.initialBlogs.length + 1)
+  expect(updatedBlogs[updatedBlogs.length - 1]).toMatchObject(newBlog)
+})
 
-  const titles = updatedBlogs.map((b) => b.title)
-  expect(titles).toContain(newBlog.title)
+test("creating a new blog post without likes property defaults to 0", async () => {
+  const newBlog = {
+    title: "Test Likes Missing",
+    author: "No likes",
+    url: "http://exemple.com",
+  }
+
+  const response = await api.post("/api/blogs").send(newBlog)
+  expect(response.body.likes).toBe(0)
 })
 
 afterAll(async () => {
