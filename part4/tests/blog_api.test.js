@@ -54,6 +54,32 @@ test("creating a new blog post without likes property defaults to 0", async () =
 
   const response = await api.post("/api/blogs").send(newBlog)
   expect(response.body.likes).toBe(0)
+  const updatedBlogs = await helper.blogsInDb()
+  expect(updatedBlogs).toHaveLength(helper.initialBlogs.length + 1)
+})
+
+test("creating a new blog post without title property", async () => {
+  const newBlog = {
+    author: "No likes",
+    url: "http://exemple.com",
+    likes: 21,
+  }
+
+  await api.post("/api/blogs").send(newBlog).expect(400)
+  const updatedBlogs = await helper.blogsInDb()
+  expect(updatedBlogs).toHaveLength(helper.initialBlogs.length)
+})
+
+test("creating a new blog post without url property", async () => {
+  const newBlog = {
+    title: "Test Likes Missing",
+    author: "No likes",
+    likes: 21,
+  }
+
+  await api.post("/api/blogs").send(newBlog).expect(400)
+  const updatedBlogs = await helper.blogsInDb()
+  expect(updatedBlogs).toHaveLength(helper.initialBlogs.length)
 })
 
 afterAll(async () => {
