@@ -15,6 +15,14 @@ const initialBlogs = [
   },
 ]
 
+const getInvalidId = async () => {
+  const invalidBlog = new Blog(initialBlogs[0])
+  await invalidBlog.save()
+  await invalidBlog.deleteOne()
+
+  return invalidBlog._id.toString()
+}
+
 const blogsInDb = async () => {
   const blogs = await Blog.find({})
   return blogs.map((blog) => blog.toJSON())
@@ -23,4 +31,5 @@ const blogsInDb = async () => {
 module.exports = {
   initialBlogs,
   blogsInDb,
+  getInvalidId,
 }
