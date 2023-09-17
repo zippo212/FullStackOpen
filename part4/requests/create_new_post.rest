@@ -1,9 +1,9 @@
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjY1MDZiZmFmZWIyZDdlMmRmMDRhNDZlNSIsImlkIjoiNjUwNmJmYWZlYjJkN2UyZGYwNGE0NmU1IiwiaWF0IjoxNjk0OTQ2MDY3LCJleHAiOjE2OTQ5NDk2Njd9.qzDoqFMybrnALpgG_96rVHH7sUbaoUnXR-pL26n2kAg
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjY1MDZkYTQzMDk0MWE2ZGM1OTZjNWRmNiIsImlkIjoiNjUwNmRhNDMwOTQxYTZkYzU5NmM1ZGY2IiwiaWF0IjoxNjk0OTQ3OTIwLCJleHAiOjE2OTQ5NTE1MjB9.4HCmwi5CRJ-IUcGzToJ-X-El82prfLCfUpGF8auYcRI
 
 {
-  "title": "Another one testing 12",
+  "title": "Delete me",
   "author": "Author",
   "url": "http://exemple.com",
   "likes": 1

@@ -5,7 +5,7 @@ const User = require("../models/user")
 
 blogsRouter.get("/", async (request, response, next) => {
   try {
-    const blogs = await Blog.find({}).populate("user")
+    const blogs = await Blog.find({}).populate("user", { blogs: 0 })
     response.json(blogs)
   } catch (err) {
     next(err)
@@ -37,9 +37,18 @@ blogsRouter.post("/", async (request, response, next) => {
 
 blogsRouter.delete("/:id", async (request, response, next) => {
   try {
+    const decodedToken = jwt.verify(request.token, process.env.SECRET)
+    if (!decodedToken.id) {
+      return response.status(401).json({ error: "Invalid token" })
+    }
     const idToDelete = request.params.id
-    await Blog.findByIdAndRemove(idToDelete)
-    response.status(204).end()
+    const blog = await Blog.findById(idToDelete)
+    if (blog?.user.toString() === decodedToken.id.toString()) {
+      await Blog.findByIdAndRemove(idToDelete)
+      response.status(204).end()
+    } else {
+      response.status(401).end()
+    }
   } catch (err) {
     next(err)
   }
