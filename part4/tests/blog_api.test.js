@@ -1,8 +1,10 @@
 const supertest = require("supertest")
 const mongoose = require("mongoose")
 const helper = require("./blog_api_test_helper")
+const bcrypt = require("bcrypt")
 const app = require("../app")
 const Blog = require("../models/blog")
+const User = require("../models/user")
 
 const api = supertest(app)
 
@@ -130,6 +132,80 @@ describe("PUT /api/blogs", () => {
 
     const updatedBlog = { likes: 21 }
     await api.put(`/api/blogs/${invalidId}`).send(updatedBlog).expect(404)
+  })
+})
+
+describe("user creation /api/users", () => {
+  beforeEach(async () => {
+    await User.deleteMany({})
+    const passwordHash = await bcrypt.hash("secret", 10)
+    const testUser = new User({ username: "testUser", passwordHash, name: "Test User" })
+    await testUser.save()
+  })
+
+  test("creation succeeds with a fresh username", async () => {
+    const InitialUsers = await User.find({})
+    const user = { username: "newTestUser", password: "secretPassword", name: "Some Name" }
+
+    await api
+      .post("/api/users")
+      .send(user)
+      .expect(201)
+      .expect("Content-Type", /application\/json/)
+
+    const usersAtTheEnd = await User.find({})
+    expect(usersAtTheEnd).toHaveLength(InitialUsers.length + 1)
+
+    const usernameArray = usersAtTheEnd.map((user) => user.username)
+    expect(usernameArray).toContain(user.username)
+  })
+
+  test("creation fails with proper statuscode and message if username already taken", async () => {
+    const InitialUsers = await User.find({})
+    const user = { username: "testUser", password: "secretPassword", name: "Some Name" }
+
+    const result = await api
+      .post("/api/users")
+      .send(user)
+      .expect(400)
+      .expect("Content-Type", /application\/json/)
+
+    expect(result.body.error).toContain("expected `username` to be unique")
+
+    const usersAtTheEnd = await User.find({})
+    expect(usersAtTheEnd).toEqual(InitialUsers)
+  })
+
+  test("creation fails with proper statuscode and message if password length shorter than expected", async () => {
+    const InitialUsers = await User.find({})
+    const user = { username: "newTestUser", password: "sh", name: "Some Name" }
+
+    const result = await api
+      .post("/api/users")
+      .send(user)
+      .expect(400)
+      .expect("Content-Type", /application\/json/)
+
+    expect(result.body.error).toContain("Invalid password length")
+
+    const usersAtTheEnd = await User.find({})
+    expect(usersAtTheEnd).toEqual(InitialUsers)
+  })
+
+  test("creation fails with proper statuscode and message if username length shorter than expected", async () => {
+    const InitialUsers = await User.find({})
+    const user = { username: "nu", password: "secretPassword", name: "Some Name" }
+
+    const result = await api
+      .post("/api/users")
+      .send(user)
+      .expect(400)
+      .expect("Content-Type", /application\/json/)
+
+    expect(result.body.error).toContain("User validation failed")
+
+    const usersAtTheEnd = await User.find({})
+    expect(usersAtTheEnd).toEqual(InitialUsers)
   })
 })
 

@@ -2,19 +2,23 @@ const bcrypt = require("bcrypt")
 const usersRouter = require("express").Router()
 const User = require("../models/user")
 
-usersRouter.post("/", async (request, response, next) => {
-  const { username, password, name } = request.body
-
-  const saltRounds = 10
-  const passwordHash = await bcrypt.hash(password, saltRounds)
-
-  const newUser = new User({ username, passwordHash, name })
-
+usersRouter.post("/", async (request, response) => {
   try {
+    const { username, password, name } = request.body
+    if (password.length < 3)
+      return response
+        .status(400)
+        .send({ error: `Invalid password length, must be at least 3 characters long received ${password.length}` })
+
+    const saltRounds = 10
+    const passwordHash = await bcrypt.hash(password, saltRounds)
+
+    const newUser = new User({ username, passwordHash, name })
+
     const returnedUser = await newUser.save()
     response.status(201).json(returnedUser)
   } catch (err) {
-    next(err)
+    response.status(400).send({ error: err.message })
   }
 })
 
