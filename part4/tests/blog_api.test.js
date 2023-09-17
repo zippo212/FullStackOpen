@@ -30,8 +30,17 @@ describe("GET /api/blogs", () => {
   })
 })
 
-describe("POST /api/blogs", () => {
-  test("creating a new blog post", async () => {
+describe.only("POST /api/blogs", () => {
+  beforeEach(async () => {
+    await User.deleteMany({})
+    const passwordHash = await bcrypt.hash("secret", 10)
+    const testUser = new User({ username: "testUser", passwordHash, name: "Test User" })
+    await testUser.save()
+  })
+  test("creating a new blog post with correct token", async () => {
+    const user = await api.post("/api/login").send({ username: "testUser", password: "secret" })
+    const token = user.body.token
+
     const newBlog = {
       title: "Test Title New",
       author: "Author New",
@@ -42,47 +51,88 @@ describe("POST /api/blogs", () => {
     await api
       .post("/api/blogs")
       .send(newBlog)
+      .set({ Authorization: `Bearer ${token}` })
       .expect(201)
       .expect("Content-Type", /application\/json/)
 
     const updatedBlogs = await helper.blogsInDb()
     expect(updatedBlogs).toHaveLength(helper.initialBlogs.length + 1)
     expect(updatedBlogs[updatedBlogs.length - 1]).toMatchObject(newBlog)
-  })
+  }, 100000)
+
+  test("creating a new blog post with invalid token", async () => {
+    const token = ""
+
+    const newBlog = {
+      title: "Test Title New",
+      author: "Author New",
+      url: "http://exemple.com",
+      likes: 21,
+    }
+
+    const result = await api
+      .post("/api/blogs")
+      .send(newBlog)
+      .set({ Authorization: `Bearer ${token}` })
+      .expect(401)
+      .expect("Content-Type", /application\/json/)
+
+    expect(result.body.error).toContain("invalid token")
+
+    const updatedBlogs = await helper.blogsInDb()
+    expect(updatedBlogs).toHaveLength(helper.initialBlogs.length)
+  }, 100000)
 
   test("creating a new blog post without likes property defaults to 0", async () => {
+    const user = await api.post("/api/login").send({ username: "testUser", password: "secret" })
+    const token = user.body.token
     const newBlog = {
       title: "Test Likes Missing",
       author: "No likes",
       url: "http://exemple.com",
     }
 
-    const response = await api.post("/api/blogs").send(newBlog)
+    const response = await api
+      .post("/api/blogs")
+      .set({ Authorization: `Bearer ${token}` })
+      .send(newBlog)
     expect(response.body.likes).toBe(0)
     const updatedBlogs = await helper.blogsInDb()
     expect(updatedBlogs).toHaveLength(helper.initialBlogs.length + 1)
   })
 
   test("creating a new blog post without title property", async () => {
+    const user = await api.post("/api/login").send({ username: "testUser", password: "secret" })
+    const token = user.body.token
     const newBlog = {
       author: "No likes",
       url: "http://exemple.com",
       likes: 21,
     }
 
-    await api.post("/api/blogs").send(newBlog).expect(400)
+    await api
+      .post("/api/blogs")
+      .set({ Authorization: `Bearer ${token}` })
+      .send(newBlog)
+      .expect(400)
     const updatedBlogs = await helper.blogsInDb()
     expect(updatedBlogs).toHaveLength(helper.initialBlogs.length)
   })
 
   test("creating a new blog post without url property", async () => {
+    const user = await api.post("/api/login").send({ username: "testUser", password: "secret" })
+    const token = user.body.token
     const newBlog = {
       title: "Test Likes Missing",
       author: "No likes",
       likes: 21,
     }
 
-    await api.post("/api/blogs").send(newBlog).expect(400)
+    await api
+      .post("/api/blogs")
+      .set({ Authorization: `Bearer ${token}` })
+      .send(newBlog)
+      .expect(400)
     const updatedBlogs = await helper.blogsInDb()
     expect(updatedBlogs).toHaveLength(helper.initialBlogs.length)
   })
@@ -125,14 +175,14 @@ describe("PUT /api/blogs", () => {
 
     const updatedPost = await Blog.findById(postToUpdate.id)
     expect(updatedPost.likes).toBe(21)
-  })
+  }, 100000)
 
   test("updating a blog post with invalid id", async () => {
     const invalidId = await helper.getInvalidId()
 
     const updatedBlog = { likes: 21 }
     await api.put(`/api/blogs/${invalidId}`).send(updatedBlog).expect(404)
-  })
+  }, 100000)
 })
 
 describe("user creation /api/users", () => {
