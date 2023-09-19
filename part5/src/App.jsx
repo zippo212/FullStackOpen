@@ -45,23 +45,30 @@ const App = () => {
     }
   }, [])
 
+  const resetNotifications = () => {
+    setTimeout(() => {
+      setSuccessMessage(null)
+      setErrorMessage(null)
+    },3000)
+  }
+
   const updateUser = (user) => {
     localStorage.setItem('loggedBlogAppUser',JSON.stringify(user))
     blogService.setUpToken(user.token)
     setUser(user)
     setSuccessMessage(`${user.name} logged in successfully`)
-    setTimeout(() => setSuccessMessage(null), 3000)
+    resetNotifications()
   }
 
   const updateBlogs = (newBlog) => {
     setBlogs(blogs.concat(newBlog))
     setSuccessMessage(`a new blog ${newBlog.title} by ${newBlog.author} added`)
-    setTimeout(() => setSuccessMessage(null), 3000)
+    resetNotifications()
   }
 
   const handleError = (err) => {
     setErrorMessage(err)
-    setTimeout(() => setErrorMessage(null), 3000)
+    resetNotifications()
   }
 
   const handleLogOut = () => {
