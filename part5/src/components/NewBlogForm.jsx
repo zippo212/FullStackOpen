@@ -15,11 +15,11 @@ const NewBlogForm = ({updateBlogs,handleError}) => {
     try {
       const createdBlog = await blogService.createBlog({title,author,url})
       updateBlogs(createdBlog)
-      resetForm()
     } catch (err) {
       handleError(err.response.data.error)
-      resetForm()
     }
+    resetForm()
+    setIsVisible(false)
   }
 
   return (
