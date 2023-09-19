@@ -66,6 +66,12 @@ const App = () => {
     resetNotifications()
   }
 
+  const removeBlogs = (id) => {
+    setBlogs(blogs.filter(b => b.id !== id))
+    setSuccessMessage(`blog was removed successfully`)
+    resetNotifications()
+  }
+
   const handleError = (err) => {
     setErrorMessage(err)
     resetNotifications()
@@ -89,7 +95,17 @@ const App = () => {
               <button onClick={handleLogOut}>logout</button>
             </p>
             <NewBlogForm updateBlogs={updateBlogs} handleError={handleError}/>
-            {blogs.map(blog =><Blog key={blog.id} blog={blog} handleError={handleError}/>)}
+            {blogs
+              .sort((a,b) => b.likes - a.likes)
+              .map(blog =>
+                <Blog 
+                  key={blog.id} 
+                  blog={blog} 
+                  handleError={handleError} 
+                  removeBlogs={removeBlogs}
+                  user={user}
+                  />
+              )}
           </>
       }
 
