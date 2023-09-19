@@ -76,7 +76,7 @@ const App = () => {
     blogService.setUpToken(null)
     setUser(null)
   }
-
+  
   return (
     <div>
       <h2>{user ? "Blogs" : "Login to application"}</h2>
@@ -89,7 +89,7 @@ const App = () => {
               <button onClick={handleLogOut}>logout</button>
             </p>
             <NewBlogForm updateBlogs={updateBlogs} handleError={handleError}/>
-            {blogs.map(blog =><Blog key={blog.id} blog={blog} />)}
+            {blogs.map(blog =><Blog key={blog.id} blog={blog}/>)}
           </>
       }
 
