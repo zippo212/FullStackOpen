@@ -1,16 +1,16 @@
-import { useState } from "react"
-import { login } from "../services/login"
+import { useState } from 'react'
+import { login } from '../services/login'
 
-const LoginForm = ({updateUser,handleError}) => {
+const LoginForm = ({ updateUser,handleError }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
-  const resetForm = () => {setUsername(""),setPassword("")}
-  
+  const resetForm = () => {setUsername(''),setPassword('')}
+
   const handleLogin = async (e) => {
     e.preventDefault()
     try {
-      const user = await login({username, password}) 
+      const user = await login({ username, password })
       updateUser(user)
       resetForm()
     } catch (err) {
@@ -24,7 +24,7 @@ const LoginForm = ({updateUser,handleError}) => {
     <form onSubmit={handleLogin}>
       <div>
         username
-          <input
+        <input
           type="text"
           value={username}
           name="Username"
@@ -33,7 +33,7 @@ const LoginForm = ({updateUser,handleError}) => {
       </div>
       <div>
         password
-          <input
+        <input
           type="password"
           value={password}
           name="Password"
@@ -41,7 +41,7 @@ const LoginForm = ({updateUser,handleError}) => {
         />
       </div>
       <button type="submit">login</button>
-    </form>      
+    </form>
   )
 }
 

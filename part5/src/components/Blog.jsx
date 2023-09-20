@@ -1,12 +1,13 @@
-import { useState } from "react"
-import blogService from "../services/blogs"
+import { useState } from 'react'
+import blogService from '../services/blogs'
+import PropTypes from 'prop-types'
 
 const Blog = ({ blog, handleError, removeBlogs, user }) => {
   const [isVisible, setIsVisible] = useState(false)
   const [updatedBlog, setUpdatedBlog] = useState(blog)
 
   const removeBtnStatus = user.username === blog.user.username
-  const buttonContent = isVisible ? "hide" : "show"
+  const buttonContent = isVisible ? 'hide' : 'show'
 
   const blogStyle = {
     paddingTop: 10,
@@ -17,8 +18,8 @@ const Blog = ({ blog, handleError, removeBlogs, user }) => {
   }
 
   const handleUpdate = async () => {
-    setUpdatedBlog({...updatedBlog, likes:updatedBlog.likes +1})
-    const updatedBlogData = {...updatedBlog, likes:updatedBlog.likes +1, user:updatedBlog.user.id}
+    setUpdatedBlog({ ...updatedBlog, likes:updatedBlog.likes +1 })
+    const updatedBlogData = { ...updatedBlog, likes:updatedBlog.likes +1, user:updatedBlog.user.id }
     try {
       const response = await blogService.update(updatedBlogData, updatedBlog.id)
       setUpdatedBlog(response)
@@ -43,7 +44,7 @@ const Blog = ({ blog, handleError, removeBlogs, user }) => {
         {updatedBlog.title} {updatedBlog.author}
         <button onClick={() => setIsVisible(!isVisible)}>{buttonContent}</button>
       </div>
-      <div style={{display: isVisible ? "" : "none"}}>
+      <div style={{ display: isVisible ? '' : 'none' }}>
         <div>{updatedBlog.url}</div>
         <div>
           {updatedBlog.likes}
@@ -53,6 +54,28 @@ const Blog = ({ blog, handleError, removeBlogs, user }) => {
         {removeBtnStatus && <button onClick={() => handleRemove()}>remove</button>}
       </div>
     </div>
-)}
+  )}
+
+Blog.propTypes = {
+  blog: PropTypes.exact({
+    title: PropTypes.string,
+    author: PropTypes.string,
+    url: PropTypes.string,
+    likes: PropTypes.number,
+    user: PropTypes.exact({
+      username: PropTypes.string,
+      name: PropTypes.string,
+      id: PropTypes.string
+    }),
+    id: PropTypes.string
+  }),
+  handleError: PropTypes.func.isRequired,
+  removeBlogs: PropTypes.func.isRequired,
+  user: PropTypes.exact({
+    username: PropTypes.string,
+    name: PropTypes.string,
+    token: PropTypes.string
+  }),
+}
 
 export default Blog

@@ -4,11 +4,11 @@ import blogService from './services/blogs'
 import LoginForm from './components/LoginForm'
 import NewBlogForm from './components/NewBlogForm'
 
-const Notification = ({success, error}) => {
+const Notification = ({ success, error }) => {
   const message = success || error
-  if (!message) return  
-  
-  const color = success ? 'green' : 'red';
+  if (!message) return
+
+  const color = success ? 'green' : 'red'
   const notificationStyle = {
     color: `${color}`,
     padding: 10,
@@ -68,7 +68,7 @@ const App = () => {
 
   const removeBlogs = (id) => {
     setBlogs(blogs.filter(b => b.id !== id))
-    setSuccessMessage(`blog was removed successfully`)
+    setSuccessMessage('blog was removed successfully')
     resetNotifications()
   }
 
@@ -82,31 +82,31 @@ const App = () => {
     blogService.setUpToken(null)
     setUser(null)
   }
-  
+
   return (
     <div>
-      <h2>{user ? "Blogs" : "Login to application"}</h2>
-      <Notification success={successMessage} error={errorMessage}/> 
-      {!user 
+      <h2>{user ? 'Blogs' : 'Login to application'}</h2>
+      <Notification success={successMessage} error={errorMessage}/>
+      {!user
         ? <LoginForm updateUser={updateUser} handleError={handleError}/>
-        : <> 
-            <p>
-              <span>{`${user.name} logged in`}</span>
-              <button onClick={handleLogOut}>logout</button>
-            </p>
-            <NewBlogForm updateBlogs={updateBlogs} handleError={handleError}/>
-            {blogs
-              .sort((a,b) => b.likes - a.likes)
-              .map(blog =>
-                <Blog 
-                  key={blog.id} 
-                  blog={blog} 
-                  handleError={handleError} 
-                  removeBlogs={removeBlogs}
-                  user={user}
-                  />
-              )}
-          </>
+        : <>
+          <p>
+            <span>{`${user.name} logged in`}</span>
+            <button onClick={handleLogOut}>logout</button>
+          </p>
+          <NewBlogForm updateBlogs={updateBlogs} handleError={handleError}/>
+          {blogs
+            .sort((a,b) => b.likes - a.likes)
+            .map(blog =>
+              <Blog
+                key={blog.id}
+                blog={blog}
+                handleError={handleError}
+                removeBlogs={removeBlogs}
+                user={user}
+              />
+            )}
+        </>
       }
 
     </div>
