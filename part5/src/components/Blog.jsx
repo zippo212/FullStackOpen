@@ -34,7 +34,7 @@ const Blog = ({ blog, handleError, removeBlogs, user, updateLike }) => {
   }
 
   return (
-    <div style={blogStyle}>
+    <div style={blogStyle} data-blog>
       <div data-test-blog-default>
         {updatedBlog.title} {updatedBlog.author}
         <button onClick={() => setIsVisible(!isVisible)}>{buttonContent}</button>

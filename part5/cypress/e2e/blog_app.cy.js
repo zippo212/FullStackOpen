@@ -102,6 +102,29 @@ describe('Blog app', function () {
           cy.get('@BlogPost').contains('show').click()
           cy.get('@BlogPost').should('not.contain', 'remove')
         })
+
+        it('blogs are ordered according to likes', function () {
+          cy.contains('Test Blog title 2').parent().as('MostLikes')
+          cy.contains('Test Blog title 1').parent().as('BlogPost')
+          cy.contains('Test Blog title 3').parent().as('LeastLikes')
+
+          cy.get('@BlogPost').contains('show').click()
+          for (let i = 0; i < 3; i++) {
+            cy.get('@BlogPost').contains('like').click()
+          }
+          cy.get('@MostLikes').contains('show').click()
+          for (let i = 0; i < 5; i++) {
+            cy.get('@MostLikes').contains('like').click()
+          }
+          cy.get('@LeastLikes').contains('show').click()
+          for (let i = 0; i < 1; i++) {
+            cy.get('@LeastLikes').contains('like').click()
+          }
+
+          cy.get('[data-blog]').eq(0).should('contain', 'Test Blog title 2')
+          cy.get('[data-blog]').eq(1).should('contain', 'Test Blog title 1')
+          cy.get('[data-blog]').eq(2).should('contain', 'Test Blog title 3')
+        })
       })
     })
   })
