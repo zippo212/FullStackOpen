@@ -41,5 +41,24 @@ describe('Blog app', function () {
 
       cy.get('h2').contains('Login to application')
     })
+
+    describe('When logged in', function () {
+      beforeEach(function () {
+        cy.login({ username: 'Test', password: 'secret' })
+      })
+
+      it.only('A blog can be created', function () {
+        cy.contains('new blog').click()
+        cy.get('#title-input').type('Test Blog title')
+        cy.get('#author-input').type('Author name')
+        cy.get('#url-input').type('http://example.com')
+        cy.get('#create-blog').click()
+
+        cy.get('[data-test-blog-default]').as('DefaultClosed')
+        cy.get('@DefaultClosed').contains('Test Blog title')
+        cy.get('@DefaultClosed').contains('Author name')
+        cy.get('@DefaultClosed').contains('show')
+      })
+    })
   })
 })
