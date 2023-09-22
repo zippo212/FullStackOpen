@@ -20,7 +20,7 @@ const Notification = ({ success, error }) => {
     border: `medium dashed ${color}`
   }
   return (
-    <div style={notificationStyle}>
+    <div style={notificationStyle} data-notification>
       {message}
     </div>
   )
