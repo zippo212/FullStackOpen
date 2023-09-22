@@ -21,7 +21,7 @@ const LoginForm = ({ updateUser,handleError }) => {
   }
 
   return (
-    <form onSubmit={handleLogin}>
+    <form onSubmit={handleLogin} id='login-form'>
       <div>
         username
         <input

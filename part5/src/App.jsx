@@ -60,16 +60,32 @@ const App = () => {
     resetNotifications()
   }
 
-  const updateBlogs = (newBlog) => {
-    setBlogs(blogs.concat(newBlog))
-    setSuccessMessage(`a new blog ${newBlog.title} by ${newBlog.author} added`)
-    resetNotifications()
+  const updateBlogs = async (newBlog) => {
+    try {
+      const createdBlog = await blogService.createBlog(newBlog)
+      setBlogs(blogs.concat(createdBlog))
+      setSuccessMessage(`a new blog ${createdBlog.title} by ${createdBlog.author} added`)
+      resetNotifications()
+    } catch (err) {
+      setErrorMessage(err.response.data.error)
+      resetNotifications()
+    }
   }
 
   const removeBlogs = (id) => {
     setBlogs(blogs.filter(b => b.id !== id))
     setSuccessMessage('blog was removed successfully')
     resetNotifications()
+  }
+
+  const updateLike = async (updatedBlogData, id) => {
+    try {
+      const response = await blogService.update(updatedBlogData, id)
+      setBlogs(blogs.map(b => b.id !== id ? b : response))
+    } catch (err) {
+      setErrorMessage(err.response.data.error)
+      resetNotifications()
+    }
   }
 
   const handleError = (err) => {
@@ -103,6 +119,7 @@ const App = () => {
                 blog={blog}
                 handleError={handleError}
                 removeBlogs={removeBlogs}
+                updateLike={updateLike}
                 user={user}
               />
             )}

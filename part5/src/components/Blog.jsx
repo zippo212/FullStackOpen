@@ -2,11 +2,11 @@ import { useState } from 'react'
 import blogService from '../services/blogs'
 import PropTypes from 'prop-types'
 
-const Blog = ({ blog, handleError, removeBlogs, user }) => {
+const Blog = ({ blog, handleError, removeBlogs, user, updateLike }) => {
   const [isVisible, setIsVisible] = useState(false)
   const [updatedBlog, setUpdatedBlog] = useState(blog)
 
-  const removeBtnStatus = user.username === blog.user.username
+  const removeBtnStatus = user.username === blog.user?.username
   const buttonContent = isVisible ? 'hide' : 'show'
 
   const blogStyle = {
@@ -17,15 +17,10 @@ const Blog = ({ blog, handleError, removeBlogs, user }) => {
     marginBottom: 5
   }
 
-  const handleUpdate = async () => {
+  const handleUpdate = () => {
     setUpdatedBlog({ ...updatedBlog, likes:updatedBlog.likes +1 })
     const updatedBlogData = { ...updatedBlog, likes:updatedBlog.likes +1, user:updatedBlog.user.id }
-    try {
-      const response = await blogService.update(updatedBlogData, updatedBlog.id)
-      setUpdatedBlog(response)
-    } catch (err) {
-      handleError(err.response.data.error)
-    }
+    updateLike(updatedBlogData, updatedBlog.id)
   }
 
   const handleRemove = async () => {
@@ -40,17 +35,17 @@ const Blog = ({ blog, handleError, removeBlogs, user }) => {
 
   return (
     <div style={blogStyle}>
-      <div>
+      <div data-test-blog-default>
         {updatedBlog.title} {updatedBlog.author}
         <button onClick={() => setIsVisible(!isVisible)}>{buttonContent}</button>
       </div>
-      <div style={{ display: isVisible ? '' : 'none' }}>
+      <div style={{ display: isVisible ? '' : 'none' }} data-test-blog-extra>
         <div>{updatedBlog.url}</div>
         <div>
           {updatedBlog.likes}
           <button onClick={() => handleUpdate()}>like</button>
         </div>
-        <div>{updatedBlog.user.name}</div>
+        <div>{updatedBlog.user?.name}</div>
         {removeBtnStatus && <button onClick={() => handleRemove()}>remove</button>}
       </div>
     </div>
@@ -71,6 +66,7 @@ Blog.propTypes = {
   }),
   handleError: PropTypes.func.isRequired,
   removeBlogs: PropTypes.func.isRequired,
+  updateLike: PropTypes.func.isRequired,
   user: PropTypes.exact({
     username: PropTypes.string,
     name: PropTypes.string,
