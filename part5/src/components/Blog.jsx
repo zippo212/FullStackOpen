@@ -42,7 +42,7 @@ const Blog = ({ blog, handleError, removeBlogs, user, updateLike }) => {
       <div style={{ display: isVisible ? '' : 'none' }} data-test-blog-extra>
         <div>{updatedBlog.url}</div>
         <div>
-          {updatedBlog.likes}
+          <span data-like>{updatedBlog.likes}</span>
           <button onClick={() => handleUpdate()}>like</button>
         </div>
         <div>{updatedBlog.user?.name}</div>
