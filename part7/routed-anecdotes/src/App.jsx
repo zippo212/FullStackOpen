@@ -3,10 +3,10 @@ import {
   Routes,
   Route,
   Link,
-  Navigate,
   useNavigate,
   useMatch
 } from "react-router-dom"
+
 
 const Menu = () => {
   const padding = {
@@ -61,25 +61,33 @@ const About = () => (
 const Footer = () => (
   <div>
     Anecdote app for <a href='https://fullstackopen.com/'>Full Stack Open</a>.
-
     See <a href='https://github.com/fullstack-hy2020/routed-anecdotes/blob/master/src/App.js'>https://github.com/fullstack-hy2020/routed-anecdotes/blob/master/src/App.js</a> for the source code.
   </div>
 )
 
-const CreateNew = (props) => {
+const Notification = ({notification}) => (
+  <div>
+    {notification}
+  </div>
+)
+
+const CreateNew = ({addNew,setUpNotification}) => {
   const [content, setContent] = useState('')
   const [author, setAuthor] = useState('')
   const [info, setInfo] = useState('')
-
+  
+  const navigate = useNavigate()
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    props.addNew({
+    addNew({
       content,
       author,
       info,
       votes: 0
     })
+    navigate('/')
+    setUpNotification(`a new anecdote ${content} created!`)
   }
 
   return (
@@ -105,6 +113,7 @@ const CreateNew = (props) => {
 
 }
 
+
 const App = () => {
   const [anecdotes, setAnecdotes] = useState([
     {
@@ -124,6 +133,11 @@ const App = () => {
   ])
 
   const [notification, setNotification] = useState('')
+
+  const setUpNotification = (message) => {
+    setNotification(message)
+    setTimeout(() => setNotification(''), 5000)
+  }
 
   const addNew = (anecdote) => {
     anecdote.id = Math.round(Math.random() * 10000)
@@ -149,16 +163,16 @@ const App = () => {
     ? anecdoteById(Number(match.params.id))
     : null
 
-    console.log(match)
   return (
     <div>
       <h1>Software anecdotes</h1>
       <Menu />
+      <Notification notification={notification}/>
 
       <Routes>
         <Route path='/' element={<AnecdoteList anecdotes={anecdotes}/>} />
         <Route path='/about' element={<About />} />
-        <Route path='/create' element={<CreateNew addNew={addNew} />} />
+        <Route path='/create' element={<CreateNew addNew={addNew} setUpNotification={setUpNotification}/>} />
         <Route path='/anecdotes/:id' element={<Anecdote anecdote={anecdote}/>} />
       </Routes>
 
