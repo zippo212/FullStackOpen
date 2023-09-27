@@ -8,7 +8,7 @@ server.use(middlewares)
 server.use(jsonServer.bodyParser)
 server.use((req, res, next) => {
   if (req.method === 'POST' && req.body.content.length < 5) {
-    return res.status(400).end()
+    return res.status(400).json({ error: 'to short anecdote, must be at least 5 characters' })
   }
   // Continue to JSON Server router
   next()
