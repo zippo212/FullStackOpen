@@ -1,0 +1,24 @@
+{
+  "notes": [
+    {
+      "content": "testing",
+      "id": 1
+    },
+    {
+      "content": "Another one",
+      "id": 2
+    }
+  ],
+  "persons": [
+    {
+      "name": "name",
+      "number": "1254563",
+      "id": 1
+    },
+    {
+      "name": "Dj khalid",
+      "number": "12345-678",
+      "id": 2
+    }
+  ]
+}
