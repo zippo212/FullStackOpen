@@ -1,0 +1,11 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjY1MDg2MTBkODQ2NjAzMmZiNWYyNDNjOCIsImlkIjoiNjUwODYxMGQ4NDY2MDMyZmI1ZjI0M2M4IiwiaWF0IjoxNjk1MDQ5NjQyLCJleHAiOjE2OTUwNTMyNDJ9.SCDkei1VxcnpchIDmVvs_MBquxYgqvzH6YuIfYKdHog
+
+
+{
+  "title": "Another one",
+  "author": "DJ khalid",
+  "url": "http://exemple.com",
+  "likes": 3
+}
