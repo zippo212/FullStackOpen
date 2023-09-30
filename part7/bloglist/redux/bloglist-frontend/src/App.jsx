@@ -17,7 +17,7 @@ const Notification = ({ success, error }) => {
     background: 'lightgrey',
     marginBottom: 10,
     borderRadius: 8,
-    border: `medium dashed ${color}`
+    border: `medium dashed ${color}`,
   }
   return (
     <div style={notificationStyle} data-notification>
@@ -49,11 +49,11 @@ const App = () => {
     setTimeout(() => {
       setSuccessMessage(null)
       setErrorMessage(null)
-    },3000)
+    }, 3000)
   }
 
   const updateUser = (user) => {
-    localStorage.setItem('loggedBlogAppUser',JSON.stringify(user))
+    localStorage.setItem('loggedBlogAppUser', JSON.stringify(user))
     blogService.setUpToken(user.token)
     setUser(user)
     setSuccessMessage(`${user.name} logged in successfully`)
@@ -73,7 +73,7 @@ const App = () => {
   }
 
   const removeBlogs = (id) => {
-    setBlogs(blogs.filter(b => b.id !== id))
+    setBlogs(blogs.filter((b) => b.id !== id))
     setSuccessMessage('blog was removed successfully')
     resetNotifications()
   }
@@ -81,7 +81,7 @@ const App = () => {
   const updateLike = async (updatedBlogData, id) => {
     try {
       const response = await blogService.update(updatedBlogData, id)
-      setBlogs(blogs.map(b => b.id !== id ? b : response))
+      setBlogs(blogs.map((b) => (b.id !== id ? b : response)))
     } catch (err) {
       setErrorMessage(err.response.data.error)
       resetNotifications()
@@ -102,19 +102,20 @@ const App = () => {
   return (
     <div>
       <h2>{user ? 'Blogs' : 'Login to application'}</h2>
-      <Notification success={successMessage} error={errorMessage}/>
-      {!user
-        ? <LoginForm updateUser={updateUser} handleError={handleError}/>
-        : <>
+      <Notification success={successMessage} error={errorMessage} />
+      {!user ? (
+        <LoginForm updateUser={updateUser} handleError={handleError} />
+      ) : (
+        <>
           <p>
             <span>{`${user.name} logged in`}</span>
             <button onClick={handleLogOut}>logout</button>
           </p>
-          <NewBlogForm updateBlogs={updateBlogs} handleError={handleError}/>
-          <div id='blogs-container'>
+          <NewBlogForm updateBlogs={updateBlogs} handleError={handleError} />
+          <div id="blogs-container">
             {blogs
-              .sort((a,b) => b.likes - a.likes)
-              .map(blog =>
+              .sort((a, b) => b.likes - a.likes)
+              .map((blog) => (
                 <Blog
                   key={blog.id}
                   blog={blog}
@@ -123,10 +124,10 @@ const App = () => {
                   updateLike={updateLike}
                   user={user}
                 />
-              )}
+              ))}
           </div>
         </>
-      }
+      )}
     </div>
   )
 }
