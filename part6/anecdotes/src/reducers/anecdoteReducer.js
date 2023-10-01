@@ -3,7 +3,6 @@ import anecdoteService from '../services/anecdoteService'
 
 const anecdoteSlice = createSlice({
   name: 'anecdotes',
-  initialState: [],
   reducers: {
     updateAnecdote(state, action) {
       const id = action.payload.id

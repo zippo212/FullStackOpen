@@ -3,12 +3,16 @@ import Blog from './components/Blog'
 import blogService from './services/blogs'
 import LoginForm from './components/LoginForm'
 import NewBlogForm from './components/NewBlogForm'
+import { useNotificationValue, useSetNotification } from './NotificationReducer'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useUserDispatch, useUserValue } from './UserReducer'
 
-const Notification = ({ success, error }) => {
-  const message = success || error
+const Notification = () => {
+  const message = useNotificationValue()
+
   if (!message) return
 
-  const color = success ? 'green' : 'red'
+  const color = message.type ? 'green' : 'red'
   const notificationStyle = {
     color: `${color}`,
     padding: 10,
@@ -17,116 +21,116 @@ const Notification = ({ success, error }) => {
     background: 'lightgrey',
     marginBottom: 10,
     borderRadius: 8,
-    border: `medium dashed ${color}`
+    border: `medium dashed ${color}`,
   }
+
   return (
     <div style={notificationStyle} data-notification>
-      {message}
+      {message.content}
     </div>
   )
 }
 
 const App = () => {
-  const [user, setUser] = useState(null)
-  const [blogs, setBlogs] = useState([])
-  const [successMessage, setSuccessMessage] = useState(null)
-  const [errorMessage, setErrorMessage] = useState(null)
+  const queryClient = useQueryClient()
+  const user = useUserValue()
+  const loginDispatch = useUserDispatch()
+  const setNotification = useSetNotification()
 
-  useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs))
-  }, [])
+  const createMutation = useMutation(blogService.createBlog, {
+    onSuccess: (blog) => {
+      queryClient.invalidateQueries({ queryKey: ['blogs'] }),
+        setNotification({ type: true, content: `blog '${blog.title}' created successfully` })
+    },
+    onError: (err) => {
+      setNotification({ type: false, content: err.response.data.error })
+    },
+  })
+
+  const updateMutation = useMutation(blogService.update, {
+    onSuccess: (blog) => {
+      queryClient.invalidateQueries({ queryKey: ['blogs'] }),
+        setNotification({ type: true, content: `blog '${blog.title}' liked successfully` })
+    },
+    onError: (err) => {
+      setNotification({ type: false, content: err.response.data.error })
+    },
+  })
+
+  const query = useQuery({ queryKey: ['blogs'], queryFn: blogService.getAll, retry: 1 })
+  const blogs = query.data
 
   useEffect(() => {
     const loggedUser = localStorage.getItem('loggedBlogAppUser')
     if (loggedUser) {
       const user = JSON.parse(loggedUser)
       blogService.setUpToken(user.token)
-      setUser(user)
+      loginDispatch({ type: 'PERSIST', payload: user })
     }
   }, [])
 
-  const resetNotifications = () => {
-    setTimeout(() => {
-      setSuccessMessage(null)
-      setErrorMessage(null)
-    },3000)
-  }
-
   const updateUser = (user) => {
-    localStorage.setItem('loggedBlogAppUser',JSON.stringify(user))
+    localStorage.setItem('loggedBlogAppUser', JSON.stringify(user))
     blogService.setUpToken(user.token)
-    setUser(user)
-    setSuccessMessage(`${user.name} logged in successfully`)
-    resetNotifications()
+    loginDispatch({ type: 'LOGIN', payload: user })
+    setNotification({
+      type: true,
+      content: `${user.name} logged in successfully`,
+    })
   }
 
   const updateBlogs = async (newBlog) => {
     try {
-      const createdBlog = await blogService.createBlog(newBlog)
-      setBlogs(blogs.concat(createdBlog))
-      setSuccessMessage(`a new blog ${createdBlog.title} by ${createdBlog.author} added`)
-      resetNotifications()
+      createMutation.mutate(newBlog)
     } catch (err) {
-      setErrorMessage(err.response.data.error)
-      resetNotifications()
+      setNotification({ type: false, content: err.response.data.error })
     }
   }
 
-  const removeBlogs = (id) => {
-    setBlogs(blogs.filter(b => b.id !== id))
-    setSuccessMessage('blog was removed successfully')
-    resetNotifications()
-  }
-
-  const updateLike = async (updatedBlogData, id) => {
+  const updateLike = async (updatedBlogData) => {
     try {
-      const response = await blogService.update(updatedBlogData, id)
-      setBlogs(blogs.map(b => b.id !== id ? b : response))
+      updateMutation.mutate(updatedBlogData)
     } catch (err) {
-      setErrorMessage(err.response.data.error)
-      resetNotifications()
+      setNotification({ type: false, content: err.response.data.error })
     }
   }
 
   const handleError = (err) => {
-    setErrorMessage(err)
-    resetNotifications()
+    setNotification({ type: false, content: err })
   }
 
   const handleLogOut = () => {
     localStorage.removeItem('loggedBlogAppUser')
     blogService.setUpToken(null)
-    setUser(null)
+    loginDispatch({ type: 'LOGOUT' })
+  }
+
+  if (query.status === 'error') {
+    return <p>anecdote service not available due to problems in server</p>
   }
 
   return (
     <div>
       <h2>{user ? 'Blogs' : 'Login to application'}</h2>
-      <Notification success={successMessage} error={errorMessage}/>
-      {!user
-        ? <LoginForm updateUser={updateUser} handleError={handleError}/>
-        : <>
+      <Notification />
+      {!user ? (
+        <LoginForm updateUser={updateUser} handleError={handleError} />
+      ) : (
+        <>
           <p>
             <span>{`${user.name} logged in`}</span>
             <button onClick={handleLogOut}>logout</button>
           </p>
-          <NewBlogForm updateBlogs={updateBlogs} handleError={handleError}/>
-          <div id='blogs-container'>
+          <NewBlogForm updateBlogs={updateBlogs} handleError={handleError} />
+          <div id="blogs-container">
             {blogs
-              .sort((a,b) => b.likes - a.likes)
-              .map(blog =>
-                <Blog
-                  key={blog.id}
-                  blog={blog}
-                  handleError={handleError}
-                  removeBlogs={removeBlogs}
-                  updateLike={updateLike}
-                  user={user}
-                />
-              )}
+              ?.sort((a, b) => b.likes - a.likes)
+              .map((blog) => (
+                <Blog key={blog.id} blog={blog} handleError={handleError} updateLike={updateLike} />
+              ))}
           </div>
         </>
-      }
+      )}
     </div>
   )
 }

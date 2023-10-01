@@ -1,10 +1,26 @@
 import { useState } from 'react'
 import blogService from '../services/blogs'
 import PropTypes from 'prop-types'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useSetNotification } from '../NotificationReducer'
+import { useUserValue } from '../UserReducer'
 
-const Blog = ({ blog, handleError, removeBlogs, user, updateLike }) => {
+const Blog = ({ blog, handleError, updateLike }) => {
+  const queryClient = useQueryClient()
+  const setNotification = useSetNotification()
+  const user = useUserValue()
   const [isVisible, setIsVisible] = useState(false)
   const [updatedBlog, setUpdatedBlog] = useState(blog)
+
+  const removeMutation = useMutation(blogService.remove, {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blogs'] }),
+        setNotification({ type: true, content: `blog removed successfully` })
+    },
+    onError: (err) => {
+      setNotification({ type: false, content: err.response.data.error })
+    },
+  })
 
   const removeBtnStatus = user.username === blog.user?.username
   const buttonContent = isVisible ? 'hide' : 'show'
@@ -14,20 +30,23 @@ const Blog = ({ blog, handleError, removeBlogs, user, updateLike }) => {
     paddingLeft: 2,
     border: 'solid',
     borderWidth: 1,
-    marginBottom: 5
+    marginBottom: 5,
   }
 
   const handleUpdate = () => {
-    setUpdatedBlog({ ...updatedBlog, likes:updatedBlog.likes +1 })
-    const updatedBlogData = { ...updatedBlog, likes:updatedBlog.likes +1, user:updatedBlog.user.id }
+    setUpdatedBlog({ ...updatedBlog, likes: updatedBlog.likes + 1 })
+    const updatedBlogData = {
+      ...updatedBlog,
+      likes: updatedBlog.likes + 1,
+      user: updatedBlog.user.id,
+    }
     updateLike(updatedBlogData, updatedBlog.id)
   }
 
   const handleRemove = async () => {
     if (!confirm(`Are you sure you want to remove ${updatedBlog.title}`)) return
     try {
-      await blogService.remove(updatedBlog.id)
-      removeBlogs(updatedBlog.id)
+      removeMutation.mutate(updatedBlog.id)
     } catch (err) {
       handleError(err.response.data.error)
     }
@@ -49,7 +68,8 @@ const Blog = ({ blog, handleError, removeBlogs, user, updateLike }) => {
         {removeBtnStatus && <button onClick={() => handleRemove()}>remove</button>}
       </div>
     </div>
-  )}
+  )
+}
 
 Blog.propTypes = {
   blog: PropTypes.exact({
@@ -60,17 +80,16 @@ Blog.propTypes = {
     user: PropTypes.exact({
       username: PropTypes.string,
       name: PropTypes.string,
-      id: PropTypes.string
+      id: PropTypes.string,
     }),
-    id: PropTypes.string
+    id: PropTypes.string,
   }),
   handleError: PropTypes.func.isRequired,
-  removeBlogs: PropTypes.func.isRequired,
   updateLike: PropTypes.func.isRequired,
   user: PropTypes.exact({
     username: PropTypes.string,
     name: PropTypes.string,
-    token: PropTypes.string
+    token: PropTypes.string,
   }),
 }
 
