@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import blogService from '../services/blogs'
 import PropTypes from 'prop-types'
+import { setNotification } from '../reducers/notificationReducer'
+import { useDispatch } from 'react-redux'
+import { deleteBlog, likeBlog } from '../reducers/blogReducer'
 
-const Blog = ({ blog, handleError, removeBlogs, user, updateLike }) => {
+const Blog = ({ blog, user }) => {
+  const dispatch = useDispatch()
   const [isVisible, setIsVisible] = useState(false)
-  const [updatedBlog, setUpdatedBlog] = useState(blog)
 
   const removeBtnStatus = user.username === blog.user?.username
   const buttonContent = isVisible ? 'hide' : 'show'
@@ -14,42 +16,50 @@ const Blog = ({ blog, handleError, removeBlogs, user, updateLike }) => {
     paddingLeft: 2,
     border: 'solid',
     borderWidth: 1,
-    marginBottom: 5
+    marginBottom: 5,
   }
 
   const handleUpdate = () => {
-    setUpdatedBlog({ ...updatedBlog, likes:updatedBlog.likes +1 })
-    const updatedBlogData = { ...updatedBlog, likes:updatedBlog.likes +1, user:updatedBlog.user.id }
-    updateLike(updatedBlogData, updatedBlog.id)
+    try {
+      const updatedBlogData = {
+        ...blog,
+        likes: blog.likes + 1,
+        user: blog.user.id,
+      }
+      dispatch(likeBlog(updatedBlogData))
+    } catch (err) {
+      dispatch(setNotification({ type: false, message: err.response.data.error }))
+    }
   }
 
   const handleRemove = async () => {
-    if (!confirm(`Are you sure you want to remove ${updatedBlog.title}`)) return
+    if (!confirm(`Are you sure you want to remove ${blog.title}`)) return
     try {
-      await blogService.remove(updatedBlog.id)
-      removeBlogs(updatedBlog.id)
+      dispatch(deleteBlog(blog.id))
+      dispatch(setNotification({ type: true, message: 'blog was removed successfully' }))
     } catch (err) {
-      handleError(err.response.data.error)
+      dispatch(setNotification({ type: false, message: err }))
     }
   }
 
   return (
     <div style={blogStyle} data-blog>
       <div data-test-blog-default>
-        {updatedBlog.title} {updatedBlog.author}
+        {blog.title} {blog.author}
         <button onClick={() => setIsVisible(!isVisible)}>{buttonContent}</button>
       </div>
       <div style={{ display: isVisible ? '' : 'none' }} data-test-blog-extra>
-        <div>{updatedBlog.url}</div>
+        <div>{blog.url}</div>
         <div>
-          <span data-like>{updatedBlog.likes}</span>
+          <span data-like>{blog.likes}</span>
           <button onClick={() => handleUpdate()}>like</button>
         </div>
-        <div>{updatedBlog.user?.name}</div>
+        <div>{blog.user?.name}</div>
         {removeBtnStatus && <button onClick={() => handleRemove()}>remove</button>}
       </div>
     </div>
-  )}
+  )
+}
 
 Blog.propTypes = {
   blog: PropTypes.exact({
@@ -60,17 +70,14 @@ Blog.propTypes = {
     user: PropTypes.exact({
       username: PropTypes.string,
       name: PropTypes.string,
-      id: PropTypes.string
+      id: PropTypes.string,
     }),
-    id: PropTypes.string
+    id: PropTypes.string,
   }),
-  handleError: PropTypes.func.isRequired,
-  removeBlogs: PropTypes.func.isRequired,
-  updateLike: PropTypes.func.isRequired,
   user: PropTypes.exact({
     username: PropTypes.string,
     name: PropTypes.string,
-    token: PropTypes.string
+    token: PropTypes.string,
   }),
 }
 

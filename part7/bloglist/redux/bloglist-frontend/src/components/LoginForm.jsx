@@ -1,27 +1,31 @@
 import { useState } from 'react'
-import { login } from '../services/login'
+import { setNotification } from '../reducers/notificationReducer'
+import { useDispatch } from 'react-redux'
+import { setupUserLogin } from '../reducers/userReducer'
 
-const LoginForm = ({ updateUser,handleError }) => {
+const LoginForm = () => {
+  const dispatch = useDispatch()
+
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
-  const resetForm = () => {setUsername(''),setPassword('')}
+  const resetForm = () => {
+    setUsername(''), setPassword('')
+  }
 
   const handleLogin = async (e) => {
     e.preventDefault()
     try {
-      const user = await login({ username, password })
-      updateUser(user)
+      dispatch(setupUserLogin({ username, password }))
       resetForm()
     } catch (err) {
-      handleError(err.response.data.error)
+      dispatch(setNotification({ type: false, message: err }))
       resetForm()
     }
-    // try to login
   }
 
   return (
-    <form onSubmit={handleLogin} id='login-form'>
+    <form onSubmit={handleLogin} id="login-form">
       <div>
         username
         <input
