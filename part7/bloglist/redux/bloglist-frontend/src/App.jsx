@@ -2,15 +2,17 @@ import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { initializeBlogs } from './reducers/blogReducer'
 import { logoutUser, persistUser } from './reducers/userReducer'
-import Blog from './components/Blog'
 import LoginForm from './components/LoginForm'
-import NewBlogForm from './components/NewBlogForm'
 import Notification from './components/Notification'
+import Home from './components/Home'
+import { Route, Routes } from 'react-router-dom'
+import Users from './components/Users'
+import User from './components/User'
+import { getUsers } from './reducers/usersReducer'
 
 const App = () => {
   const dispatch = useDispatch()
   const user = useSelector((state) => state.user)
-  const blogs = useSelector((state) => state.blogs)
 
   useEffect(() => {
     dispatch(initializeBlogs())
@@ -20,27 +22,32 @@ const App = () => {
     dispatch(persistUser())
   }, [dispatch])
 
+  useEffect(() => {
+    dispatch(getUsers())
+  }, [dispatch])
+
   return (
     <div>
-      <h2>{user ? 'Blogs' : 'Login to application'}</h2>
-      <Notification />
-      {!user ? (
-        <LoginForm />
-      ) : (
+      {user ? (
         <>
+          <h2>Blogs</h2>
           <p>
             <span>{`${user.name} logged in`}</span>
             <button onClick={() => dispatch(logoutUser())}>logout</button>
           </p>
-          <NewBlogForm />
-          <div id="blogs-container">
-            {[...blogs]
-              .sort((a, b) => b.likes - a.likes)
-              .map((blog) => (
-                <Blog key={blog.id} blog={blog} user={user} />
-              ))}
-          </div>
         </>
+      ) : (
+        <h2>Please log in</h2>
+      )}
+      <Notification />
+      {!user ? (
+        <LoginForm />
+      ) : (
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/users/:id" element={<User />} />
+        </Routes>
       )}
     </div>
   )
