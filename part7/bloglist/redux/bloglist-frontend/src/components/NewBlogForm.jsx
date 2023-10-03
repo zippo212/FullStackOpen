@@ -2,6 +2,9 @@ import { useState } from 'react'
 import { createBlog } from '../reducers/blogReducer'
 import { useDispatch } from 'react-redux'
 import { setNotification } from '../reducers/notificationReducer'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 const NewBlogForm = () => {
   const dispatch = useDispatch()
@@ -31,50 +34,54 @@ const NewBlogForm = () => {
   }
 
   return (
-    <>
+    <div className="py-2">
       <div style={{ display: isVisible ? 'none' : '' }}>
-        <button onClick={() => setIsVisible(true)}>new blog</button>
+        <Button onClick={() => setIsVisible(true)} className="p-3 h-6">
+          new blog
+        </Button>
       </div>
       <div style={{ display: isVisible ? '' : 'none' }}>
-        <h2>Create new</h2>
-        <form onSubmit={handleSubmit}>
+        <h2 className="font-semibold">Create new</h2>
+        <form onSubmit={handleSubmit} className="max-w-sm py-2">
           <div>
-            title
-            <input
+            <Label htmlFor="title">Title</Label>
+            <Input
               id="title-input"
               type="text"
               value={title}
-              name="Title"
+              name="title"
               onChange={({ target }) => setTitle(target.value)}
             />
           </div>
           <div>
-            author
-            <input
+            <Label htmlFor="author">Author</Label>
+            <Input
               id="author-input"
               type="text"
               value={author}
-              name="Author"
+              name="author"
               onChange={({ target }) => setAuthor(target.value)}
             />
           </div>
           <div>
-            url
-            <input
+            <Label htmlFor="url">Url</Label>
+            <Input
               id="url-input"
               type="url"
               value={url}
-              name="Url"
+              name="url"
               onChange={({ target }) => setUrl(target.value)}
             />
           </div>
-          <button type="submit" id="create-blog">
+          <Button type="submit" id="create-blog" className="p-3 h-6">
             Create
-          </button>
+          </Button>
         </form>
-        <button onClick={() => setIsVisible(false)}>cancel</button>
+        <Button onClick={() => setIsVisible(false)} className="p-3 h-6">
+          cancel
+        </Button>
       </div>
-    </>
+    </div>
   )
 }
 

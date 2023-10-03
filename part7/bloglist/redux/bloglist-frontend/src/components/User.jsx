@@ -11,12 +11,16 @@ const User = () => {
     return null
   }
   return (
-    <div>
-      <h2>{userInfo.name}</h2>
-      <h3>added blogs</h3>
-      <ul>
+    <div className="max-w-7xl p-5">
+      <h2 className="font-bold text-xl">{userInfo.name}</h2>
+      <h3 className="font-semibold">added blogs</h3>
+      <ul className="list-none max-w-7xl space-y-0.5 py-2">
         {userInfo.blogs.map((blog) => {
-          return <li key={blog.id}>{blog.title}</li>
+          return (
+            <li key={blog.id} className="font-medium">
+              {blog.title}
+            </li>
+          )
         })}
       </ul>
     </div>

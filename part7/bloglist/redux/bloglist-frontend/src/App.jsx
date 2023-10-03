@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { initializeBlogs } from './reducers/blogReducer'
-import { logoutUser, persistUser } from './reducers/userReducer'
+import { persistUser } from './reducers/userReducer'
 import LoginForm from './components/LoginForm'
 import Notification from './components/Notification'
 import Home from './components/Home'
@@ -9,6 +9,8 @@ import { Route, Routes } from 'react-router-dom'
 import Users from './components/Users'
 import User from './components/User'
 import { getUsers } from './reducers/usersReducer'
+import Blog from './components/Blog'
+import Nav from './components/Nav'
 
 const App = () => {
   const dispatch = useDispatch()
@@ -28,17 +30,7 @@ const App = () => {
 
   return (
     <div>
-      {user ? (
-        <>
-          <h2>Blogs</h2>
-          <p>
-            <span>{`${user.name} logged in`}</span>
-            <button onClick={() => dispatch(logoutUser())}>logout</button>
-          </p>
-        </>
-      ) : (
-        <h2>Please log in</h2>
-      )}
+      <Nav />
       <Notification />
       {!user ? (
         <LoginForm />
@@ -47,6 +39,7 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/users" element={<Users />} />
           <Route path="/users/:id" element={<User />} />
+          <Route path="/blogs/:id" element={<Blog />} />
         </Routes>
       )}
     </div>
