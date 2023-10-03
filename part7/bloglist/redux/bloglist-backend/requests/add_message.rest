@@ -1,0 +1,6 @@
+POST http://localhost:3003/api/blogs/6519cee59321b6cb58bea680
+Content-Type: application/json
+
+{
+  "message": "3333333"
+}

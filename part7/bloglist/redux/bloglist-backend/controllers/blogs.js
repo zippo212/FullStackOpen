@@ -75,4 +75,22 @@ blogsRouter.put('/:id', userExtractor, async (request, response, next) => {
   }
 })
 
+blogsRouter.post('/:id', async (request, response, next) => {
+  try {
+    const id = request.params.id
+    const blog = await Blog.findById(id).populate('user', { blogs: 0 })
+    if (!blog) return response.status(404).end()
+
+    const { message } = request.body
+    if (!message) return response.status(400).send({ error: 'Must provide a message' })
+
+    blog.messages = blog.messages.concat(message)
+    await blog.save()
+
+    response.status(200).json(blog)
+  } catch (err) {
+    next(err)
+  }
+})
+
 module.exports = blogsRouter
